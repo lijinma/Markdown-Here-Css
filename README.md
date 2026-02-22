@@ -2,7 +2,7 @@
 
 微信公众号毫秒级排版，让你的排版充满审美愉悦感。复制 CSS 代码到 "Markdown Here 基本渲染 CSS" 即可。
 
-Fork 自 [huanxi007/markdown-here-css](https://github.com/huanxi007/markdown-here-css)，在此基础上做了以下调整：
+Fork 自 [HuijieL/Efficiency-MarkdownHereCss](https://github.com/HuijieL/Efficiency-MarkdownHereCss)，在此基础上做了以下调整：
 
 ## 做了什么调整
 

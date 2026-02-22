@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Markdown CSS 预览</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f0f2f5;
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* 左侧主题选择面板 */
+    .sidebar {
+      width: 220px;
+      min-width: 220px;
+      background: #1a1a2e;
+      color: #eee;
+      padding: 20px 0;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sidebar h2 {
+      font-size: 16px;
+      padding: 0 16px 16px;
+      border-bottom: 1px solid #333;
+      margin-bottom: 8px;
+    }
+
+    .theme-list {
+      list-style: none;
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .theme-list li {
+      padding: 10px 16px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background 0.2s;
+      border-left: 3px solid transparent;
+    }
+
+    .theme-list li:hover {
+      background: #16213e;
+    }
+
+    .theme-list li.active {
+      background: #0f3460;
+      border-left-color: #e94560;
+      color: #fff;
+      font-weight: 600;
+    }
+
+    /* 右侧 iframe 内容区 */
+    .main {
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .main iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+
+    /* 移动端适配 */
+    @media (max-width: 768px) {
+      body { flex-direction: column; }
+      .sidebar {
+        width: 100%;
+        min-width: unset;
+        height: auto;
+        max-height: 200px;
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <aside class="sidebar">
+    <h2>选择主题 CSS</h2>
+    <ul class="theme-list" id="themeList"></ul>
+  </aside>
+
+  <main class="main">
+    <iframe id="preview" srcdoc="<p>加载中...</p>"></iframe>
+  </main>
+
+  <script>
+    const cssFiles = [
+      '01. 一块输出深红色.css',
+      '02. 土豪金.css',
+      '03. 得到橙色系.css',
+      '04. 李笑来.css',
+      '05. 源泉特区.css',
+      '06. 红色.css',
+      '07. 绿色.css',
+      '08. 青色苹方字体.css',
+      '09. 简约1.css',
+      '10.简约2.css',
+      '11. 丝带.css',
+      '12.三色光.css',
+      'jinma-修改自一块输出深红色.css',
+    ];
+    const themes = cssFiles.map(file => {
+      const name = file.replace(/\.css$/, '').replace(/^\d+[\.\s]*/, '') || file;
+      return { name, file };
+    });
+    const themeList = document.getElementById('themeList');
+    const iframe = document.getElementById('preview');
+    let markdownHtml = '';
+
+    function renderThemeList() {
+      themeList.innerHTML = '';
+      themes.forEach((theme, index) => {
+        const li = document.createElement('li');
+        li.textContent = theme.name;
+        li.addEventListener('click', () => selectTheme(index));
+        themeList.appendChild(li);
+      });
+    }
+
+    function selectTheme(index) {
+      document.querySelectorAll('.theme-list li').forEach(el => el.classList.remove('active'));
+      themeList.children[index].classList.add('active');
+      updateIframe(themes[index].file);
+    }
+
+    function updateIframe(cssFile) {
+      const doc = iframe.contentDocument || iframe.contentWindow.document;
+      doc.open();
+      doc.write(`<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="${cssFile}">
+  <style>
+    body { padding: 40px 48px; margin: 0 auto; max-width: 780px; }
+  </style>
+</head>
+<body>
+  <section id="nice">${markdownHtml}</section>
+</body>
+</html>`);
+      doc.close();
+    }
+
+    // 加载 marked.js 后再加载 markdown
+    renderThemeList();
+    const script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/npm/marked/marked.min.js';
+    script.onload = async () => {
+      const md = await fetch('article.md').then(res => res.text());
+      markdownHtml = marked.parse(md);
+      selectTheme(0);
+    };
+    document.head.appendChild(script);
+  </script>
+</body>
+</html>
